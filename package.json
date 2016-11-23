@@ -1,0 +1,8 @@
+{
+  "name": "snow-on-me",
+  "version": "1.0.0",
+  "description": "Getting snow on demand",
+  "license": "MIT",
+  "private": true,
+  "bin": "./main.js"
+}
