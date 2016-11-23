@@ -1,0 +1,21 @@
+name: snow-on-me
+version: '1.0.0'
+summary: A simple webserver serving christmas snow on demand
+description: |
+  This is a small webserver server snowing for demonstrating usage of the
+  oxide full screen webserver on a raspberry pi 2.
+  It demonstrates as well the snap configure functionality.
+grade: stable
+confinement: strict
+
+apps:
+  node-service:
+    command: bin/snow-on-me
+    daemon: simple
+    restart-condition: always
+    plugs: [network-bind]
+
+parts:
+  webserver:
+    source: .
+    plugin: nodejs
