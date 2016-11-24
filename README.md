@@ -17,7 +17,9 @@ Then reboot.
 
 ## Launching it
 
-You can launch your local webserver directly on the pi (once connected to a display):
+The webserver will be launched automatically as a nodejs service when your PI starts.
+
+You can launch a full screen webbrowser directly on the pi (once connected to a display) and connect it to this webserver:
 ```
 /snap/bin/oxide-digitalsignage.start-oxide --url="http://localhost"
 ```
