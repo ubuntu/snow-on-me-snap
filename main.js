@@ -5,7 +5,8 @@ const http = require('http'),
       fs = require("fs");
 
 // Let's define a port we want to listen on
-const PORT = 80;
+const DEFAULT_PORT = 80;
+var port = DEFAULT_PORT;
 
 const html = `
 <header>
@@ -20,6 +21,11 @@ const html = `
 `;
 
 const rootdir = path.resolve(__dirname);
+var CONFIG_DIR = process.env.SNAP_DATA;
+if (!CONFIG_DIR) {
+    CONFIG_DIR = '.'
+}
+const CONFIG_FILE = path.join(CONFIG_DIR, 'config');
 
 function handleRequest(request, response){
     if (request.url === "/snow.gif") {
@@ -42,6 +48,34 @@ function handleRequest(request, response){
 
 var server = http.createServer(handleRequest);
 
-server.listen(PORT, function(){
-    console.log("Server listening on: http://localhost:%s", PORT);
+
+
+fs.watchFile(CONFIG_FILE, (filename, prev) => {
+    // file doesn't exist (even on startup) or exists and changed from default port
+    loadconfig_and_start_server();
 });
+// if file exists on startup: load config and start server here
+if (fs.existsSync(CONFIG_FILE)) {
+    loadconfig_and_start_server();
+}
+
+function loadconfig_and_start_server() {
+    fs.readFile(CONFIG_FILE, (err, data) => {
+        if (err) {
+            if (port != DEFAULT_PORT) {
+                console.log("Error reading config file, reverting to defaut port:" + err);
+            }
+            port = DEFAULT_PORT
+        } else {
+            console.log("Load port configuration");
+            // TODO
+            port = 120
+        }
+
+        server.close(() => {
+            server.listen(port, function(){
+                console.log("Server listening on: http://localhost:%s", port);
+            });
+        });
+    });
+}
