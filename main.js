@@ -52,6 +52,20 @@ function handleRequest(request, response){
 
 var server = http.createServer(handleRequest);
 
+server.activeconnections = {}
+server.on('connection', function(conn) {
+    var key = conn.remoteAddress + ':' + conn.remotePort;
+    server.activeconnections[key] = conn;
+    conn.on('close', function() {
+        delete server.activeconnections[key];
+    });
+});
+// we want to immediatetly close all connections on server restart (for port change)
+server.force_close = function(cb) {
+    server.close(cb);
+    for (var key in server.activeconnections)
+        server.activeconnections[key].destroy();
+};
 
 
 fs.watchFile(CONFIG_FILE, (filename, prev) => {
@@ -102,7 +116,7 @@ function loadconfig_and_start_server() {
 
         // reload server if needed
         if (new_port != port || !server._handle) {
-            server.close(() => {
+            server.force_close(() => {
                 port = new_port;
                 server.listen(port, function(){
                     console.log("Server listening on: http://localhost:%s", port);
