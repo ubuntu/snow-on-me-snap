@@ -65,16 +65,16 @@ if (fs.existsSync(CONFIG_FILE)) {
 
 function loadconfig_and_start_server() {
     fs.readFile(CONFIG_FILE, (err, data) => {
+
+        new_port = DEFAULT_PORT;
+        new_title = DEFAULT_TITLE;
+
         if (err) {
             if (port != DEFAULT_PORT) {
                 console.log("Error reading config file, reverting to defaut port:" + err);
             }
-            port = DEFAULT_PORT
-            title = DEFAULT_TITLE;
         } else {
             console.log("Load port configuration");
-            port = DEFAULT_PORT;
-            title = DEFAULT_TITLE;
             fs.readFileSync(CONFIG_FILE).toString().split('\n').forEach(function (line) {
                 var data = line.split("=");
 
@@ -88,20 +88,26 @@ function loadconfig_and_start_server() {
                         if (isNaN(port_candidate)) {
                             console.log(`Port defined "${data[1]}" is not a valid port. Ignoring.`)
                         } else {
-                            port = port_candidate;
+                            new_port = port_candidate;
                         }
                         break;
                     case 'title':
-                        title = data[1];
+                        new_title = data[1];
                         break;
                 }
             });
         }
 
-        server.close(() => {
-            server.listen(port, function(){
-                console.log("Server listening on: http://localhost:%s", port);
+        title = new_title
+
+        // reload server if needed
+        if (new_port != port || !server._handle) {
+            server.close(() => {
+                port = new_port;
+                server.listen(port, function(){
+                    console.log("Server listening on: http://localhost:%s", port);
+                });
             });
-        });
+        }
     });
 }
