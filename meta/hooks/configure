@@ -29,7 +29,7 @@ _refresh_opt_in_file() {
 ## Options are in the form key=value.
 update_opt_in_config() {
     opt=$1
-    if ! value=$(snapctl get $opt); then
+    if ! value=$(snapctl get $opt) || [ -z "$value" ]; then
         _remove_opt_from_file $opt
     else
         _refresh_opt_in_file $opt "$value"
