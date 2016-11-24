@@ -68,8 +68,25 @@ function loadconfig_and_start_server() {
             port = DEFAULT_PORT
         } else {
             console.log("Load port configuration");
-            // TODO
-            port = 120
+            port = DEFAULT_PORT;
+            fs.readFileSync(CONFIG_FILE).toString().split('\n').forEach(function (line) {
+                var data = line.split("=");
+
+                if (data[1] == undefined) {
+                    return
+                }
+
+                switch(data[0]) {
+                    case 'port':
+                        port_candidate = parseInt(data[1]);
+                        if (isNaN(port_candidate)) {
+                            console.log(`Port defined "${data[1]}" is not a valid port. Ignoring.`)
+                        } else {
+                            port = port_candidate;
+                        }
+                        break;
+                }
+            });
         }
 
         server.close(() => {
