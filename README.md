@@ -23,3 +23,16 @@ You can launch your local webserver directly on the pi (once connected to a disp
 ```
 
 Note that you can as well accessing the webserver from another browser on another machine using the IP of your Pi.
+
+
+## Configure port and title
+
+You can configure the port and web page title via the snap configure hook.
+
+This one is executing on install and upgrade, and you can change parameters with:
+```
+snap set snow-on-me port=8080 title="Don't catch a cold with that snow"
+```
+
+Of course, you can set only one of those parameters. They will be picked up by the nodejs daemon and refreshed automatically.
+You will need to refresh the page in your browser.
