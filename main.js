@@ -8,9 +8,13 @@ const http = require('http'),
 const DEFAULT_PORT = 80;
 var port = DEFAULT_PORT;
 
+// same with webpage title
+var DEFAULT_TITLE = "Merry christmas!";
+var title = DEFAULT_TITLE;
+
 const html = `
 <header>
-  <title>Merry christmas!</title>
+  <title>TITLE</title>
   <style>
     body {
         background-image: url("snow.gif");
@@ -43,7 +47,7 @@ function handleRequest(request, response){
         return;
     }
     response.writeHeader(200, {"Content-Type": "text/html"});
-    response.end(html);
+    response.end(html.replace("TITLE", title));
 }
 
 var server = http.createServer(handleRequest);
@@ -66,9 +70,11 @@ function loadconfig_and_start_server() {
                 console.log("Error reading config file, reverting to defaut port:" + err);
             }
             port = DEFAULT_PORT
+            title = DEFAULT_TITLE;
         } else {
             console.log("Load port configuration");
             port = DEFAULT_PORT;
+            title = DEFAULT_TITLE;
             fs.readFileSync(CONFIG_FILE).toString().split('\n').forEach(function (line) {
                 var data = line.split("=");
 
@@ -84,6 +90,9 @@ function loadconfig_and_start_server() {
                         } else {
                             port = port_candidate;
                         }
+                        break;
+                    case 'title':
+                        title = data[1];
                         break;
                 }
             });
