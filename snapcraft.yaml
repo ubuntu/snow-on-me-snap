@@ -19,3 +19,9 @@ parts:
   webserver:
     source: .
     plugin: nodejs
+  # workaround until we have snapcraft hooks support
+  hook:
+    source: .
+    plugin: dump
+    stage: [meta]
+    snap: [meta]
