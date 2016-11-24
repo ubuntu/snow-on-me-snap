@@ -5,7 +5,10 @@ CONFIG_FILE=$SNAP_DATA/config
 
 ## remove option from file. Do not fail if config file doesn't exist
 _remove_opt_from_file() {
-    sed -i "/^$1=/d" $CONFIG_FILE 2>/dev/null || true
+    # Note that we don't use sed -i as it's using fchown32 denied
+    # by seccomp profile.
+    sed "/^$1=/d" $CONFIG_FILE 2>/dev/null >${CONFIG_FILE}.new || true
+    mv -f ${CONFIG_FILE}.new $CONFIG_FILE 2>/dev/null
 }
 
 ## add or replace option from file. Create the file if doesn't exist
@@ -14,7 +17,8 @@ _refresh_opt_in_file() {
     value="$2"
     replace_line="$opt=$value"
     if $(grep -q "$opt=" $CONFIG_FILE); then
-        sed -i "s/^$opt=.*/$replace_line/" $CONFIG_FILE 2>/dev/null
+        sed "s/^$opt=.*/$replace_line/" $CONFIG_FILE 2>/dev/null >${CONFIG_FILE}.new
+        mv -f ${CONFIG_FILE}.new $CONFIG_FILE 2>/dev/null
     else
         echo $replace_line >> $CONFIG_FILE
     fi
