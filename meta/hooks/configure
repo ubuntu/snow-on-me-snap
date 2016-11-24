@@ -1,9 +1,5 @@
 #!/bin/sh
-
 set -e
-
-# for testing
-[ -z "$SNAP_DATA" ] && SNAP_DATA="."
 
 CONFIG_FILE=$SNAP_DATA/config
 
