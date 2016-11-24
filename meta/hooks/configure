@@ -1,0 +1,41 @@
+#!/bin/sh
+
+set -e
+
+# for testing
+[ -z "$SNAP_DATA" ] && SNAP_DATA="."
+
+CONFIG_FILE=$SNAP_DATA/config
+
+## remove option from file. Do not fail if config file doesn't exist
+_remove_opt_from_file() {
+    sed -i "/^$1=/d" $CONFIG_FILE 2>/dev/null || true
+}
+
+## add or replace option from file. Create the file if doesn't exist
+_refresh_opt_in_file() {
+    opt=$1
+    value="$2"
+    replace_line="$opt=$value"
+    if $(grep -q "$opt=" $CONFIG_FILE); then
+        sed -i "s/^$opt=.*/$replace_line/" $CONFIG_FILE 2>/dev/null
+    else
+        echo $replace_line >> $CONFIG_FILE
+    fi
+}
+
+## Add/Update/Remove option from config depending if a value is defined or not.
+## Handle unexisting config files and let options in place if additional comments were added.
+## Options are in the form key=value.
+update_opt_in_config() {
+    opt=$1
+    if ! value=$(snapctl get $opt); then
+        _remove_opt_from_file $opt
+    else
+        _refresh_opt_in_file $opt "$value"
+    fi
+}
+
+# Start here, update config we desire
+update_opt_in_config port
+update_opt_in_config title
